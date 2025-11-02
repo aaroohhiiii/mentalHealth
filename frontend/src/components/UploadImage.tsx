@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 const cameraIcon = new URL('../public/icons/camera.png', import.meta.url).href
+const uploadIcon = new URL('../public/icons/folder.png', import.meta.url).href
+
 
 interface UploadImageProps {
   onUpload: (file: File) => void
@@ -135,47 +137,6 @@ const UploadImage: React.FC<UploadImageProps> = ({ onUpload }) => {
 
   return (
     <div style={styles.container}>
-      {/* Camera Section */}
-      <div style={styles.cameraSection}>
-        {/* <div style={styles.icon}>�</div>
-         */}
-          <img src={cameraIcon} alt="Audio Waves" style={styles.icon}  />
-        <h3>Take a Selfie</h3>
-        <p style={styles.description}>
-          Capture a selfie for facial expression analysis
-        </p>
-
-        {!isCameraOpen ? (
-          <button 
-            onClick={openCamera} 
-            style={styles.cameraButton}
-            disabled={isLoadingCamera}
-          >
-            {isLoadingCamera ? '⏳ Loading Camera...' : '📸 Open Camera'}
-          </button>
-        ) : (
-          <div style={styles.cameraActive}>
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              muted
-              style={styles.video}
-            />
-            <div style={styles.cameraControls}>
-              <button onClick={captureImage} style={styles.captureButton}>
-                📸 Capture
-              </button>
-              <button onClick={closeCamera} style={styles.closeButton}>
-                ✖️ Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-      </div>
-
       {/* Preview Section */}
       {preview && (
         <div style={styles.previewContainer}>
@@ -187,16 +148,66 @@ const UploadImage: React.FC<UploadImageProps> = ({ onUpload }) => {
         </div>
       )}
 
-      {/* Divider */}
+      {/* Combined Camera and Upload Section */}
       {!preview && (
-        <>
+        <div style={styles.combinedSection}>
+          {/* Camera Section */}
+          <div style={styles.cameraSection}>
+            <img src={cameraIcon} alt="Camera" style={styles.icon}  />
+            <h3>Take a Selfie</h3>
+            <p style={styles.description}>
+              Capture a selfie for facial expression analysis
+            </p>
+
+            {!isCameraOpen ? (
+              <button 
+                onClick={openCamera} 
+                style={styles.cameraButton}
+                disabled={isLoadingCamera}
+              >
+                {isLoadingCamera ? (
+                  <>⏳ Loading Camera...</>
+                ) : (
+                  <>
+                    <img src={cameraIcon} alt="Camera" style={styles.buttonIcon} />
+                    Open Camera
+                  </>
+                )}
+              </button>
+            ) : (
+              <div style={styles.cameraActive}>
+                <video 
+                  ref={videoRef} 
+                  autoPlay 
+                  playsInline 
+                  muted
+                  style={styles.video}
+                />
+                <div style={styles.cameraControls}>
+                  <button onClick={captureImage} style={styles.captureButton}>
+                    <img src={cameraIcon} alt="Capture" style={styles.buttonIcon} />
+                    Capture
+                  </button>
+                  <button onClick={closeCamera} style={styles.closeButton}>
+                    ✖️ Close
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <canvas ref={canvasRef} style={{ display: 'none' }} />
+          </div>
+
+          {/* Divider */}
           <div style={styles.divider}>
             <span style={styles.dividerText}>OR</span>
           </div>
 
           {/* File Upload Section */}
           <div style={styles.uploadBox}>
-            <div style={styles.icon}>📁</div>
+            <div style={styles.icon}>
+              <img src={uploadIcon} style={styles.icon} alt="upload" />
+            </div>
             <h3>Upload Image File</h3>
             <p style={styles.description}>
               Upload a saved image file (.jpg, .jpeg, .png)
@@ -215,7 +226,7 @@ const UploadImage: React.FC<UploadImageProps> = ({ onUpload }) => {
               Tip: Take 4-5 selfies throughout the day in natural lighting
             </p>
           </div>
-        </>
+        </div>
       )}
     </div>
   )
@@ -225,26 +236,30 @@ const styles = {
   container: {
     padding: '1rem',
   },
-  cameraSection: {
+  combinedSection: {
     border: '2px solid #667eea',
     borderRadius: '12px',
     padding: '2rem',
+    background: 'rgba(102, 126, 234, 0.05)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '1rem',
+  },
+  cameraSection: {
     textAlign: 'center' as const,
-    background: 'rgba(102, 126, 234, 0.1)',
-    marginBottom: '1.5rem',
+    padding: '1rem',
   },
   uploadBox: {
-    border: '2px dashed #667eea',
-    borderRadius: '12px',
-    padding: '2rem',
     textAlign: 'center' as const,
-    background: 'rgba(102, 126, 234, 0.05)',
+    padding: '1rem',
   },
   icon: {
     width :'80px' ,
     height:'80px',
     fontSize: '3rem',
     marginBottom: '1rem',
+    // display:'flex',
+    
   },
   description: {
     color: '#666',
@@ -347,6 +362,13 @@ const styles = {
     fontSize: '0.85rem',
     color: '#999',
     fontStyle: 'italic' as const,
+  },
+  buttonIcon: {
+    width: '20px',
+    height: '20px',
+    objectFit: 'contain' as const,
+    marginRight: '0.5rem',
+    verticalAlign: 'middle',
   },
 }
 

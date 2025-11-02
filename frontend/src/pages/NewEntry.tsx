@@ -3,6 +3,9 @@ import axios from 'axios'
 import UploadAudio from '../components/UploadAudio'
 import UploadImage from '../components/UploadImage'
 import ModalityCard from '../components/ModalityCard'
+import analysisIcon from '../public/icons/analysis.png?url'
+import cameraIcon from '../public/icons/camera.png?url'
+import audioIcon from '../public/icons/audio-waves.png?url'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -157,7 +160,10 @@ Write about your thoughts, mood, or anything on your mind..."
       {(textResult || audioResult || imageResult) && (
         <>
           <div className="card">
-            <h2>📊 Latest Analysis Results</h2>
+            <h2 style={styles.resultsHeader}>
+              <img src={analysisIcon} alt="Analysis" style={styles.headerIcon} />
+              Latest Analysis Results
+            </h2>
           </div>
 
           <div style={styles.resultsGrid}>
@@ -167,7 +173,7 @@ Write about your thoughts, mood, or anything on your mind..."
                 score={textResult.score}
                 bucket={textResult.bucket}
                 explain={textResult.explain}
-                icon="📝"
+                icon={analysisIcon}
               />
             )}
             {audioResult && (
@@ -176,7 +182,7 @@ Write about your thoughts, mood, or anything on your mind..."
                 score={audioResult.score}
                 bucket={audioResult.bucket}
                 explain={audioResult.explain}
-                icon="🎤"
+                icon={audioIcon}
               />
             )}
             {imageResult && (
@@ -185,7 +191,7 @@ Write about your thoughts, mood, or anything on your mind..."
                 score={imageResult.score}
                 bucket={imageResult.bucket}
                 explain={imageResult.explain}
-                icon="📸"
+                icon={cameraIcon}
               />
             )}
           </div>
@@ -197,16 +203,33 @@ Write about your thoughts, mood, or anything on your mind..."
 
 const styles = {
   textarea: {
-    background: '#d7efffff',
-    color: '#1a1a1a',
+    background: 'linear-gradient(#f9f9f9 0%, #fefefe 100%)',
+    backgroundImage: `
+      repeating-linear-gradient(
+        transparent,
+        transparent 31px,
+        #e5e5e5 31px,
+        #e5e5e5 32px
+      ),
+      linear-gradient(
+        90deg,
+        #d4e8f7 0px,
+        #d4e8f7 40px,
+        transparent 40px
+      )
+    `,
+    color: '#2c3e50',
     width: '100%',
-    padding: '1rem',
-    fontSize: '1rem',
+    padding: '1rem 1rem 1rem 50px',
+    fontSize: '1.1rem',
+    lineHeight: '32px',
     borderRadius: '8px',
-    border: '2px solid #ddd',
-    fontFamily: 'inherit',
+    border: '2px solid #6abce2',
+    borderLeft: '3px solid #235284',
+    fontFamily: "'Kalam', 'Handlee', 'Comic Sans MS', cursive",
     resize: 'vertical' as const,
     marginBottom: '1rem',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.05)',
   },
   buttonContainer: {
     
@@ -235,6 +258,16 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '1.5rem',
+  },
+  resultsHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  headerIcon: {
+    width: '32px',
+    height: '32px',
+    objectFit: 'contain' as const,
   },
 }
 

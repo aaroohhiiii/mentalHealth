@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import TrendChart from '../components/TrendChart'
+import analysisIcon from '../public/icons/analysis.png?url'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -104,7 +105,10 @@ function Trends() {
           </>
         ) : (
           <div style={styles.emptyState}>
-            <p>📊 No trend data available yet.</p>
+            <p style={styles.emptyText}>
+              <img src={analysisIcon} alt="Analysis" style={styles.emptyIcon} />
+              No trend data available yet.
+            </p>
             <p>Start adding daily entries to track your mental health over time.</p>
           </div>
         )}
@@ -172,6 +176,17 @@ const styles = {
     textAlign: 'center' as const,
     padding: '3rem 1rem',
     color: '#999',
+  },
+  emptyText: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+  },
+  emptyIcon: {
+    width: '24px',
+    height: '24px',
+    objectFit: 'contain' as const,
   },
   insights: {
     background: 'rgba(102, 126, 234, 0.1)',

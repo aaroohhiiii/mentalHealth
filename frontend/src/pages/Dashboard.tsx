@@ -3,6 +3,9 @@ import axios from 'axios'
 import RiskGauge from '../components/RiskGauge'
 import ModalityCard from '../components/ModalityCard'
 import TrendChart from '../components/TrendChart'
+import analysisIcon from '../public/icons/analysis.png?url'
+import audioIcon from '../public/icons/audio-waves.png?url'
+import cameraIcon from '../public/icons/camera.png?url'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -90,7 +93,10 @@ function Dashboard() {
   return (
     <div>
       <div className="card">
-        <h2>📊 Today's Mental Health Assessment</h2>
+        <h2 style={styles.headerWithIcon}>
+          <img src={analysisIcon} alt="Analysis" style={styles.icon} />
+          Today's Mental Health Assessment
+        </h2>
         
         {data.latestScore !== null ? (
           <RiskGauge score={data.latestScore} bucket={data.latestBucket} />
@@ -103,7 +109,7 @@ function Dashboard() {
       </div>
 
       <div className="card">
-        <h2>📈 7-Day Trend</h2>
+        <h2> 7-Day Trend</h2>
         {data.trendData.scores.some(s => s !== null) ? (
           <TrendChart
             dates={data.trendData.dates}
@@ -123,21 +129,21 @@ function Dashboard() {
           score={data.textData?.score || null}
           bucket={data.textData?.bucket || 'No Data'}
           explain={data.textData?.explain}
-          icon="📝"
+          icon={analysisIcon}
         />
         <ModalityCard
           modality="Audio"
           score={data.audioData?.score || null}
           bucket={data.audioData?.bucket || 'No Data'}
           explain={data.audioData?.explain}
-          icon="🎤"
+          icon={audioIcon}
         />
         <ModalityCard
           modality="Image"
           score={data.imageData?.score || null}
           bucket={data.imageData?.bucket || 'No Data'}
           explain={data.imageData?.explain}
-          icon="📸"
+          icon={cameraIcon}
         />
       </div>
 
@@ -166,6 +172,16 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '1.5rem',
     marginBottom: '1.5rem',
+  },
+  headerWithIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  icon: {
+    width: '50px',
+    height: '50px',
+    objectFit: 'contain' as const,
   },
   disclaimer: {
     background: 'rgba(102, 126, 234, 0.1)',

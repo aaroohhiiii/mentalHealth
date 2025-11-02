@@ -9,10 +9,22 @@ interface ModalityCardProps {
 }
 
 const ModalityCard: React.FC<ModalityCardProps> = ({ modality, score, bucket, explain, icon }) => {
+  // Check if icon is an image URL or emoji
+  const isImageIcon = icon.includes('.png') || icon.includes('.jpg') || icon.includes('.svg')
+  
+  const renderIcon = () => {
+    if (isImageIcon) {
+      return <img src={icon} alt={modality} style={styles.iconImage} />
+    }
+    return <span>{icon}</span>
+  }
+
   if (score === null) {
     return (
       <div className="card" style={styles.card}>
-        <h3>{icon} {modality}</h3>
+        <h3 style={styles.titleWithIcon}>
+          {renderIcon()} {modality}
+        </h3>
         <p style={styles.noData}>No data available</p>
       </div>
     )
@@ -26,7 +38,9 @@ const ModalityCard: React.FC<ModalityCardProps> = ({ modality, score, bucket, ex
   return (
     <div className="card" style={styles.card}>
       <div style={styles.header}>
-        <h3>{icon} {modality}</h3>
+        <h3 style={styles.titleWithIcon}>
+          {renderIcon()} {modality}
+        </h3>
         <div className={bgClass} style={styles.badge}>
           {percentage}% - {bucket}
         </div>
@@ -143,6 +157,16 @@ const styles = {
     fontStyle: 'italic' as const,
     textAlign: 'center' as const,
     padding: '2rem',
+  },
+  titleWithIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  iconImage: {
+    width: '28px',
+    height: '28px',
+    objectFit: 'contain' as const,
   },
   tokens: {
     marginTop: '0.75rem',

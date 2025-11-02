@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
+const uploadIcon = new URL('../public/icons/folder.png', import.meta.url).href
 
 interface UploadAudioProps {
   onUpload: (file: File) => void
@@ -103,76 +104,84 @@ const UploadAudio: React.FC<UploadAudioProps> = ({ onUpload }) => {
 
   return (
     <div style={styles.container}>
-      {/* Recording Section */}
-      <div style={styles.recordSection}>
-        <div style={styles.iconImage}>
-          <img src={audioWavesIcon} alt="Audio Waves" style={styles.iconImg} />
-        </div>
-        <h3>Record Audio Check-in</h3>
-        <p style={styles.description}>
-          Record a 5-10 second voice clip about how you're feeling
-        </p>
-
-        {!isRecording ? (
-          <button onClick={startRecording} style={styles.recordButton}>
-            🎤 Start Recording
-          </button>
-        ) : (
-          <div style={styles.recordingActive}>
-            <div style={styles.recordingIndicator}>
-              <span style={styles.recordingDot}>●</span> Recording...
-            </div>
-            <div style={styles.timer}>{formatTime(recordingTime)}</div>
-            <button onClick={stopRecording} style={styles.stopButton}>
-              ⏹️ Stop Recording
-            </button>
+      {/* Combined Recording and Upload Section */}
+      <div style={styles.combinedSection}>
+        {/* Recording Section */}
+        <div style={styles.recordSection}>
+          <div style={styles.iconImage}>
+            <img src={audioWavesIcon} alt="Audio Waves" style={styles.iconImg} />
           </div>
-        )}
-
-        {recordedAudio && (
-          <div style={styles.audioPreview}>
-            <audio controls src={recordedAudio} style={styles.audioPlayer} />
-          </div>
-        )}
-      </div>
-
-      {/* Divider */}
-      <div style={styles.divider}>
-        <span style={styles.dividerText}>OR</span>
-      </div>
-
-      {/* File Upload Section */}
-      <div style={styles.uploadBox}>
-        <div style={styles.icon}>📁</div>
-        <h3>Upload Audio File</h3>
-        <p style={styles.description}>
-          Upload a saved audio file (.wav, .mp3, .ogg, .flac, .webm)
-        </p>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".wav,.mp3,.ogg,.flac,.webm"
-          onChange={handleFileSelect}
-          style={styles.fileInput}
-        />
-
-        {selectedFile && (
-          <div style={styles.selectedFile}>
-            <p>Selected: <strong>{selectedFile.name}</strong></p>
-            <p>Size: {(selectedFile.size / 1024).toFixed(2)} KB</p>
-            <button onClick={handleUpload} style={styles.uploadButton}>
-              Analyze Audio
-            </button>
-          </div>
-        )}
-
-        {!selectedFile && (
-          <p style={styles.hint}>
-            {hasPermission === false && '❌ Microphone access denied. '}
-            Tip: Speak naturally about how you're feeling today
+          <h3>Record Audio Check-in</h3>
+          <p style={styles.description}>
+            Record a 5-10 second voice clip about how you're feeling
           </p>
-        )}
+
+          {!isRecording ? (
+            <button onClick={startRecording} style={styles.recordButton}>
+              🎤 Start Recording
+            </button>
+          ) : (
+            <div style={styles.recordingActive}>
+              <div style={styles.recordingIndicator}>
+                <span style={styles.recordingDot}>●</span> Recording...
+              </div>
+              <div style={styles.timer}>{formatTime(recordingTime)}</div>
+              <button onClick={stopRecording} style={styles.stopButton}>
+                ⏹️ Stop Recording
+              </button>
+            </div>
+          )}
+
+          {recordedAudio && (
+            <div style={styles.audioPreview}>
+              <audio controls src={recordedAudio} style={styles.audioPlayer} />
+            </div>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div style={styles.divider}>
+          <span style={styles.dividerText}>OR</span>
+        </div>
+
+        {/* File Upload Section */}
+        <div style={styles.uploadBox}>
+          <div style={styles.icon}>
+            <img src={uploadIcon} alt="upload" style={{
+              height:'60px' ,
+              width:'60px' ,
+            }}/>
+          </div>
+          <h3>Upload Audio File</h3>
+          <p style={styles.description}>
+            Upload a saved audio file (.wav, .mp3, .ogg, .flac, .webm)
+          </p>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".wav,.mp3,.ogg,.flac,.webm"
+            onChange={handleFileSelect}
+            style={styles.fileInput}
+          />
+
+          {selectedFile && (
+            <div style={styles.selectedFile}>
+              <p>Selected: <strong>{selectedFile.name}</strong></p>
+              <p>Size: {(selectedFile.size / 1024).toFixed(2)} KB</p>
+              <button onClick={handleUpload} style={styles.uploadButton}>
+                Analyze Audio
+              </button>
+            </div>
+          )}
+
+          {!selectedFile && (
+            <p style={styles.hint}>
+              {hasPermission === false && '❌ Microphone access denied. '}
+              Tip: Speak naturally about how you're feeling today
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -182,20 +191,22 @@ const styles = {
   container: {
     padding: '1rem',
   },
-  recordSection: {
+  combinedSection: {
     border: '2px solid #667eea',
     borderRadius: '12px',
     padding: '2rem',
+    background: 'rgba(102, 126, 234, 0.05)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '1rem',
+  },
+  recordSection: {
     textAlign: 'center' as const,
-    background: 'rgba(102, 126, 234, 0.1)',
-    marginBottom: '1.5rem',
+    padding: '1rem',
   },
   uploadBox: {
-    border: '2px dashed #667eea',
-    borderRadius: '12px',
-    padding: '2rem',
     textAlign: 'center' as const,
-    background: 'rgba(102, 126, 234, 0.05)',
+    padding: '1rem',
   },
   icon: {
     fontSize: '3rem',
