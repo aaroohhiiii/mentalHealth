@@ -21,6 +21,12 @@ from services.storage import (
     purge_all_data,
     get_daily_entries
 )
+from services.llm_enhance import (
+    enhance_text_analysis,
+    enhance_audio_analysis,
+    enhance_image_analysis,
+    enhance_daily_fusion
+)
 
 app = FastAPI(
     title="Mental Health AI System",
@@ -85,7 +91,7 @@ class DailyAggregateResponse(BaseModel):
 
 class TrendResponse(BaseModel):
     dates: List[str]
-    scores: List[float]
+    scores: List[Optional[float]]
     buckets: List[str]
 
 
@@ -324,6 +330,147 @@ async def get_stats():
         return stats
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Stats retrieval failed: {str(e)}")
+
+
+# ===== LLM-Enhanced Endpoints (Hybrid Approach) =====
+
+@app.post("/analyze/text/enhanced")
+async def analyze_text_enhanced_endpoint(request: TextAnalysisRequest):
+    """
+    Enhanced text analysis with LLM reasoning (Llama 3.1 8B via Groq)
+    Returns both model analysis AND intelligent interpretation
+    """
+    try:
+        timestamp = request.timestamp or datetime.now().isoformat()
+        
+        # Step 1: Get pre-trained model analysis
+        model_result = analyze_text(request.text)
+        
+        # Step 2: Enhance with LLM
+        enhanced_result = enhance_text_analysis(request.text, model_result)
+        
+        # Store both
+        analysis_id = store_analysis("text", {
+            "text": request.text,
+            "model_result": model_result,
+            "enhanced_result": enhanced_result,
+            "timestamp": timestamp
+        })
+        
+        return {
+            **enhanced_result,
+            "timestamp": timestamp,
+            "analysis_id": analysis_id
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Enhanced text analysis failed: {str(e)}")
+
+
+@app.post("/analyze/audio/enhanced")
+async def analyze_audio_enhanced_endpoint(file: UploadFile = File(...)):
+    """
+    Enhanced audio analysis with LLM reasoning
+    """
+    try:
+        # Validate file type
+        if not file.filename.endswith(('.wav', '.mp3', '.ogg', '.flac')):
+            raise HTTPException(status_code=400, detail="Invalid audio format")
+        
+        # Step 1: Get pre-trained model analysis
+        audio_bytes = await file.read()
+        model_result = analyze_audio(audio_bytes, file.filename)
+        
+        # Step 2: Enhance with LLM
+        enhanced_result = enhance_audio_analysis(model_result)
+        
+        timestamp = datetime.now().isoformat()
+        
+        # Store
+        analysis_id = store_analysis("audio", {
+            "filename": file.filename,
+            "model_result": model_result,
+            "enhanced_result": enhanced_result,
+            "timestamp": timestamp
+        })
+        
+        return {
+            **enhanced_result,
+            "timestamp": timestamp,
+            "analysis_id": analysis_id
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Enhanced audio analysis failed: {str(e)}")
+
+
+@app.post("/analyze/image/enhanced")
+async def analyze_image_enhanced_endpoint(file: UploadFile = File(...)):
+    """
+    Enhanced image analysis with LLM reasoning
+    """
+    try:
+        # Validate file type
+        if not file.filename.endswith(('.jpg', '.jpeg', '.png')):
+            raise HTTPException(status_code=400, detail="Invalid image format")
+        
+        # Step 1: Get pre-trained model analysis
+        image_bytes = await file.read()
+        model_result = analyze_image(image_bytes, file.filename)
+        
+        # Step 2: Enhance with LLM
+        enhanced_result = enhance_image_analysis(model_result)
+        
+        timestamp = datetime.now().isoformat()
+        
+        # Store
+        analysis_id = store_analysis("image", {
+            "filename": file.filename,
+            "model_result": model_result,
+            "enhanced_result": enhanced_result,
+            "timestamp": timestamp
+        })
+        
+        return {
+            **enhanced_result,
+            "timestamp": timestamp,
+            "analysis_id": analysis_id
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Enhanced image analysis failed: {str(e)}")
+
+
+@app.post("/aggregate/day/enhanced")
+async def aggregate_day_enhanced_endpoint(request: DailyAggregateRequest):
+    """
+    Enhanced daily aggregation with comprehensive LLM assessment
+    """
+    try:
+        # Get all entries for the day
+        daily_data = get_daily_entries(request.date)
+        
+        # Perform fusion
+        fusion_result = aggregate_daily_scores(
+            daily_data["text"],
+            daily_data["audio"],
+            daily_data["image"]
+        )
+        
+        # Enhance with LLM
+        enhanced_result = enhance_daily_fusion(fusion_result, daily_data)
+        
+        # Store
+        store_analysis("daily_aggregate_enhanced", {
+            "date": request.date,
+            "fusion_result": fusion_result,
+            "enhanced_result": enhanced_result
+        })
+        
+        return enhanced_result
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Enhanced daily aggregation failed: {str(e)}")
 
 
 if __name__ == "__main__":

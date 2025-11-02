@@ -1,12 +1,23 @@
 """
 Image Analysis Service
-Analyzes facial expressions for emotional state using FER
-Currently using placeholder logic - will be replaced with fer library or MobileNet
+Analyzes facial expressions for emotional state using FER (Facial Expression Recognition)
+Uses fer library with pre-trained models on FER2013 dataset
 """
 
 import io
 import random
 from typing import Dict
+import numpy as np
+
+try:
+    from fer import FER
+    import cv2
+    from PIL import Image
+    FER_AVAILABLE = True
+    _fer_detector = None
+except ImportError:
+    print("Warning: fer library not available, using fallback image analysis")
+    FER_AVAILABLE = False
 
 
 # Facial emotion categories
@@ -24,9 +35,25 @@ FACIAL_STRESS_MAP = {
 }
 
 
+def _load_fer_detector():
+    """Load FER detector (cached after first load)"""
+    global _fer_detector
+    
+    if _fer_detector is None and FER_AVAILABLE:
+        try:
+            print("Loading facial expression recognition model (first time only)...")
+            _fer_detector = FER(mtcnn=True)  # Use MTCNN for better face detection
+            print("✓ FER model loaded successfully")
+        except Exception as e:
+            print(f"Warning: Could not load FER model: {e}")
+            _fer_detector = "fallback"
+    
+    return _fer_detector
+
+
 def analyze_image(image_bytes: bytes, filename: str) -> Dict:
     """
-    Analyze facial expression for emotional state
+    Analyze facial expression for emotional state using pre-trained FER model
     
     Args:
         image_bytes: Raw image file bytes
@@ -46,38 +73,45 @@ def analyze_image(image_bytes: bytes, filename: str) -> Dict:
         }
     """
     
-    # Placeholder: Generate deterministic scores based on filename
-    filename_hash = sum(ord(c) for c in filename)
-    random.seed(filename_hash)
+    # If FER not available, use fallback
+    if not FER_AVAILABLE:
+        return _analyze_image_fallback(image_bytes, filename)
     
-    # Simulate face detection (95% success rate)
-    face_detected = random.random() > 0.05
+    # Load detector
+    detector = _load_fer_detector()
+    if detector == "fallback" or detector is None:
+        return _analyze_image_fallback(image_bytes, filename)
     
-    if not face_detected:
-        return {
-            "score": 0.5,  # Neutral when no face
-            "bucket": "Moderate",
-            "top_emotions": {"neutral": 1.0},
-            "explain": {
-                "all_emotions": {"neutral": 1.0},
-                "dominant_emotion": "neutral",
-                "face_detected": False,
-                "confidence": 0.0,
-                "message": "No face detected in image"
+    try:
+        # Load image
+        image = Image.open(io.BytesIO(image_bytes))
+        image_np = np.array(image.convert('RGB'))
+        
+        # Detect emotions
+        result = detector.detect_emotions(image_np)
+        
+        if not result or len(result) == 0:
+            # No face detected
+            return {
+                "score": 0.5,  # Neutral when no face
+                "bucket": "Moderate",
+                "top_emotions": {"neutral": 1.0},
+                "explain": {
+                    "all_emotions": {"neutral": 1.0},
+                    "dominant_emotion": "neutral",
+                    "face_detected": False,
+                    "confidence": 0.0,
+                    "message": "No face detected in image"
+                }
             }
-        }
-    
-    # Simulate emotion detection
-    emotions_prob = {}
-    total = 0
-    for emotion in FACIAL_EMOTIONS:
-        prob = random.random()
-        emotions_prob[emotion] = prob
-        total += prob
-    
-    # Normalize probabilities
-    for emotion in emotions_prob:
-        emotions_prob[emotion] = round(emotions_prob[emotion] / total, 3)
+        
+        # Get emotions from first detected face
+        emotions_prob = result[0]['emotions']
+        face_detected = True
+        
+    except Exception as e:
+        print(f"Error in FER analysis: {e}, using fallback")
+        return _analyze_image_fallback(image_bytes, filename)
     
     # Sort and get top 3 emotions
     sorted_emotions = sorted(emotions_prob.items(), key=lambda x: x[1], reverse=True)
@@ -162,36 +196,85 @@ def aggregate_daily_images(image_results: list) -> Dict:
     }
 
 
-# ===== Future: Real Model Implementation =====
-"""
-def analyze_image_fer(image_bytes: bytes) -> Dict:
-    # TODO: Replace with actual FER implementation
+# ===== Fallback: Placeholder Analysis =====
+def _analyze_image_fallback(image_bytes: bytes, filename: str) -> Dict:
+    """
+    Fallback placeholder image analysis if FER fails to load
+    """
+    filename_hash = sum(ord(c) for c in filename)
+    random.seed(filename_hash)
     
-    from fer import FER
-    import cv2
-    import numpy as np
-    from PIL import Image
+    # Simulate face detection (95% success rate)
+    face_detected = random.random() > 0.05
     
-    # Load image
-    image = Image.open(io.BytesIO(image_bytes))
-    image_array = np.array(image)
+    if not face_detected:
+        return {
+            "score": 0.5,  # Neutral when no face
+            "bucket": "Moderate",
+            "top_emotions": {"neutral": 1.0},
+            "explain": {
+                "all_emotions": {"neutral": 1.0},
+                "dominant_emotion": "neutral",
+                "face_detected": False,
+                "confidence": 0.0,
+                "message": "No face detected in image (placeholder)"
+            }
+        }
     
-    # Convert RGB to BGR for OpenCV
-    if len(image_array.shape) == 3 and image_array.shape[2] == 3:
-        image_array = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
+    # Simulate emotion detection
+    emotions_prob = {}
+    total = 0
+    for emotion in FACIAL_EMOTIONS:
+        prob = random.random()
+        emotions_prob[emotion] = prob
+        total += prob
     
-    # Detect emotions
-    detector = FER(mtcnn=True)  # Use MTCNN for better face detection
-    result = detector.detect_emotions(image_array)
+    # Normalize probabilities
+    for emotion in emotions_prob:
+        emotions_prob[emotion] = round(emotions_prob[emotion] / total, 3)
+    
+    # Sort and get top 3 emotions
+    sorted_emotions = sorted(emotions_prob.items(), key=lambda x: x[1], reverse=True)
+    top_3 = dict(sorted_emotions[:3])
+    dominant_emotion = sorted_emotions[0][0]
+    confidence = sorted_emotions[0][1]
+    
+    # Calculate stress score
+    stress_contribution = sum(
+        emotions_prob[e] * FACIAL_STRESS_MAP[e]
+        for e in emotions_prob
+    )
+    
+    score = round(stress_contribution, 3)
+    
+    # Categorize
+    if score < 0.33:
+        bucket = "Low"
+    elif score < 0.66:
+        bucket = "Moderate"
+    else:
+        bucket = "High"
+    
+    return {
+        "score": score,
+        "bucket": bucket,
+        "top_emotions": top_3,
+        "explain": {
+            "all_emotions": emotions_prob,
+            "dominant_emotion": dominant_emotion,
+            "face_detected": True,
+            "confidence": confidence,
+            "facial_landmarks": {
+                "eyes": "detected",
+                "mouth": "detected",
+                "eyebrows": "detected"
+            },
+            "note": "Placeholder analysis - install fer for real detection"
+        }
+    }
     
     if not result:
         return no_face_response()
     
     # Get dominant emotion
-    emotions = result[0]['emotions']
-    
-    # Calculate stress score
-    score = sum(emotions[e] * FACIAL_STRESS_MAP[e] for e in emotions)
-    
-    return format_result(emotions, score)
-"""
+
