@@ -8,6 +8,8 @@ import io
 import random
 from typing import Dict
 import numpy as np
+import tempfile
+import os
 
 try:
     import librosa
@@ -25,6 +27,13 @@ try:
 except ImportError:
     print("Warning: transformers not available for audio")
     TRANSFORMERS_AVAILABLE = False
+
+try:
+    from pydub import AudioSegment
+    PYDUB_AVAILABLE = True
+except ImportError:
+    print("Warning: pydub not available for webm conversion")
+    PYDUB_AVAILABLE = False
 
 
 # Emotion categories for SER
@@ -62,6 +71,81 @@ def _load_audio_model():
     return _audio_model
 
 
+def _convert_webm_to_wav(audio_bytes: bytes) -> bytes:
+    """Convert webm audio to wav format using pydub"""
+    if not PYDUB_AVAILABLE:
+        raise Exception("pydub not available for webm conversion")
+    
+    # Validate input
+    if not audio_bytes or len(audio_bytes) == 0:
+        raise ValueError("Empty audio data")
+    
+    # Check if it's actually a valid WebM file (should start with 0x1A 0x45 0xDF 0xA3)
+    if len(audio_bytes) < 4:
+        raise ValueError(f"Audio data too short: {len(audio_bytes)} bytes")
+    
+    # Log first few bytes for debugging
+    header_bytes = ' '.join(f'{b:02x}' for b in audio_bytes[:8])
+    print(f"Audio file header: {header_bytes}")
+    
+    temp_webm_path = None
+    temp_wav_path = None
+    
+    try:
+        # Save webm to temp file
+        with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as temp_webm:
+            temp_webm.write(audio_bytes)
+            temp_webm_path = temp_webm.name
+        
+        print(f"Saved WebM to: {temp_webm_path} ({len(audio_bytes)} bytes)")
+        
+        # Convert to wav using pydub (will use ffmpeg internally)
+        # Try to explicitly set frame rate to 16kHz for Wav2Vec2
+        audio = AudioSegment.from_file(temp_webm_path, format="webm")
+        
+        # Resample to 16kHz mono if needed
+        audio = audio.set_frame_rate(16000)
+        audio = audio.set_channels(1)
+        
+        print(f"Audio loaded: {len(audio)}ms, {audio.frame_rate}Hz, {audio.channels} channel(s)")
+        
+        # Export as wav to temp file
+        temp_wav_path = tempfile.mktemp(suffix='.wav')
+        audio.export(
+            temp_wav_path, 
+            format="wav",
+            parameters=["-ar", "16000", "-ac", "1"]  # 16kHz, mono
+        )
+        
+        print(f"Exported WAV to: {temp_wav_path}")
+        
+        # Read wav bytes
+        with open(temp_wav_path, 'rb') as f:
+            wav_bytes = f.read()
+        
+        print(f"✓ Conversion successful: {len(wav_bytes)} bytes WAV")
+        
+        return wav_bytes
+        
+    except Exception as e:
+        print(f"Error converting webm: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
+    finally:
+        # Cleanup temp files
+        if temp_webm_path and os.path.exists(temp_webm_path):
+            try:
+                os.unlink(temp_webm_path)
+            except:
+                pass
+        if temp_wav_path and os.path.exists(temp_wav_path):
+            try:
+                os.unlink(temp_wav_path)
+            except:
+                pass
+
+
 def analyze_audio(audio_bytes: bytes, filename: str) -> Dict:
     """
     Analyze audio for vocal emotion and stress indicators using pre-trained models
@@ -86,6 +170,16 @@ def analyze_audio(audio_bytes: bytes, filename: str) -> Dict:
     # If libraries not available, use fallback
     if not LIBROSA_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         return _analyze_audio_fallback(audio_bytes, filename)
+    
+    # Convert webm to wav if needed
+    if filename.lower().endswith('.webm'):
+        try:
+            print(f"Converting webm to wav: {filename}")
+            audio_bytes = _convert_webm_to_wav(audio_bytes)
+            print("✓ Conversion successful")
+        except Exception as e:
+            print(f"Warning: webm conversion failed: {e}")
+            return _analyze_audio_fallback(audio_bytes, filename)
     
     # Load model
     model = _load_audio_model()

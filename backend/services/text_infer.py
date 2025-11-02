@@ -6,12 +6,14 @@ Models: cardiffnlp/twitter-roberta-base-sentiment-latest for sentiment
 
 import re
 from typing import Dict, List
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
-import torch
 
 # Global model cache (loaded once on first use)
 _sentiment_model = None
 _tokenizer = None
+
+# Flag to check if transformers is available (checked lazily)
+_transformers_checked = False
+_transformers_available = False
 
 
 # Stress/depression indicator keywords (simple baseline)
@@ -33,24 +35,39 @@ POSITIVE_KEYWORDS = [
 
 def _load_models():
     """Load pre-trained models (cached after first load)"""
-    global _sentiment_model, _tokenizer
+    global _sentiment_model, _tokenizer, _transformers_checked, _transformers_available
     
     if _sentiment_model is None:
-        try:
-            print("Loading sentiment analysis model (first time only)...")
-            # Use cardiffnlp's RoBERTa sentiment model
-            model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-            _sentiment_model = pipeline(
-                "sentiment-analysis",
-                model=model_name,
-                tokenizer=model_name,
-                device=-1  # CPU (use 0 for GPU)
-            )
-            _tokenizer = AutoTokenizer.from_pretrained(model_name)
-            print("✓ Sentiment model loaded successfully")
-        except Exception as e:
-            print(f"Warning: Could not load transformer model: {e}")
-            print("Falling back to keyword-based analysis")
+        # Import PyTorch/transformers only when actually needed
+        if not _transformers_checked:
+            try:
+                from transformers import pipeline, AutoTokenizer
+                _transformers_available = True
+            except ImportError:
+                print("Warning: transformers not available for text analysis")
+                _transformers_available = False
+            _transformers_checked = True
+        
+        if _transformers_available:
+            try:
+                from transformers import pipeline, AutoTokenizer
+                print("Loading sentiment analysis model (first time only)...")
+                # Use cardiffnlp's RoBERTa sentiment model
+                model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest"
+                _sentiment_model = pipeline(
+                    "sentiment-analysis",
+                    model=model_name,
+                    tokenizer=model_name,
+                    device=-1  # CPU (use 0 for GPU)
+                )
+                _tokenizer = AutoTokenizer.from_pretrained(model_name)
+                print("✓ Sentiment model loaded successfully")
+            except Exception as e:
+                print(f"Warning: Could not load transformer model: {e}")
+                print("Falling back to keyword-based analysis")
+                _sentiment_model = "fallback"
+        else:
+            print("Using keyword-based fallback for text analysis")
             _sentiment_model = "fallback"
     
     return _sentiment_model, _tokenizer

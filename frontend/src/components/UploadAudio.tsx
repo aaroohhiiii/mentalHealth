@@ -1,7 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
 const uploadIcon = new URL('../public/icons/folder.png', import.meta.url).href
-const micIcon = new URL('../public/icons/mic.png', import.meta.url).href
-
 
 interface UploadAudioProps {
   onUpload: (file: File) => void
@@ -41,27 +39,59 @@ const UploadAudio: React.FC<UploadAudioProps> = ({ onUpload }) => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // Request audio with specific constraints for better quality
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          channelCount: 1, // Mono
+          sampleRate: 16000, // 16kHz - matches what Wav2Vec2 expects
+          echoCancellation: true,
+          noiseSuppression: true,
+        } 
+      })
       setHasPermission(true)
       
-      const mediaRecorder = new MediaRecorder(stream)
+      // Try to use the best supported audio format
+      let mimeType = 'audio/webm;codecs=opus'
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'audio/webm'
+      }
+      
+      console.log('Using MIME type:', mimeType)
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType,
+        audioBitsPerSecond: 128000 // 128 kbps
+      })
+      
       mediaRecorderRef.current = mediaRecorder
       audioChunksRef.current = []
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+        if (event.data && event.data.size > 0) {
+          console.log('Audio chunk received:', event.data.size, 'bytes')
           audioChunksRef.current.push(event.data)
         }
       }
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+      mediaRecorder.onstop = async () => {
+        console.log('Recording stopped. Total chunks:', audioChunksRef.current.length)
+        
+        // Create blob from all chunks
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType })
+        console.log('Audio blob size:', audioBlob.size, 'bytes')
+        
+        if (audioBlob.size === 0) {
+          alert('Recording failed - no audio data captured')
+          stream.getTracks().forEach(track => track.stop())
+          return
+        }
+        
         const audioUrl = URL.createObjectURL(audioBlob)
         setRecordedAudio(audioUrl)
         
-        // Convert to File
+        // Create webm file - server will convert it
         const audioFile = new File([audioBlob], `recording-${Date.now()}.webm`, {
-          type: 'audio/webm',
+          type: mimeType,
         })
         setSelectedFile(audioFile)
         
@@ -69,9 +99,16 @@ const UploadAudio: React.FC<UploadAudioProps> = ({ onUpload }) => {
         stream.getTracks().forEach(track => track.stop())
       }
 
-      mediaRecorder.start()
+      mediaRecorder.onerror = (event: any) => {
+        console.error('MediaRecorder error:', event.error)
+        alert('Recording error: ' + event.error)
+      }
+
+      // Start recording - request data every 1 second for stability
+      mediaRecorder.start(1000)
       setIsRecording(true)
       setRecordingTime(0)
+      console.log('Recording started')
     } catch (error) {
       console.error('Error accessing microphone:', error)
       setHasPermission(false)
@@ -119,12 +156,9 @@ const UploadAudio: React.FC<UploadAudioProps> = ({ onUpload }) => {
           </p>
 
           {!isRecording ? (
-            <div style={styles.buttonContainer}>
-              <img alt='Microphone' src={micIcon} style={styles.micIcon}/>
-              <button onClick={startRecording} style={styles.recordButton}>
-                Start Recording
-              </button>
-            </div>
+            <button onClick={startRecording} style={styles.recordButton}>
+              🎤 Start Recording
+            </button>
           ) : (
             <div style={styles.recordingActive}>
               <div style={styles.recordingIndicator}>
@@ -132,7 +166,7 @@ const UploadAudio: React.FC<UploadAudioProps> = ({ onUpload }) => {
               </div>
               <div style={styles.timer}>{formatTime(recordingTime)}</div>
               <button onClick={stopRecording} style={styles.stopButton}>
-                ⏹️Stop Recording
+                ⏹️ Stop Recording
               </button>
             </div>
           )}
@@ -199,28 +233,23 @@ const styles = {
   combinedSection: {
     border: '2px solid #667eea',
     borderRadius: '12px',
-    padding: '1.5rem',
+    padding: '2rem',
     background: 'rgba(102, 126, 234, 0.05)',
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '0.75rem',
+    gap: '1rem',
   },
   recordSection: {
     textAlign: 'center' as const,
-    padding: '0.5rem',
+    padding: '1rem',
   },
   uploadBox: {
     textAlign: 'center' as const,
-    padding: '0.5rem',
+    padding: '1rem',
   },
   icon: {
-    height:'80px',
-    width :'80px',
     fontSize: '3rem',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: '0 auto 0.5rem auto',
+    marginBottom: '1rem',
   },
   iconImage: {
     marginBottom: '1rem',
@@ -236,18 +265,6 @@ const styles = {
     color: '#4f4e4eff',
     marginBottom: '1.5rem',
   },
-  buttonContainer: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    gap: '1rem',
-    marginTop: '1rem',
-  },
-  micIcon: {
-    width: '80px',
-    height: '80px',
-    objectFit: 'contain' as const,
-  },
   recordButton: {
     background: '#667eea',
     color: 'white',
@@ -257,6 +274,7 @@ const styles = {
     fontSize: '1rem',
     fontWeight: 'bold' as const,
     cursor: 'pointer' as const,
+    marginTop: '1rem',
   },
   recordingActive: {
     display: 'flex',

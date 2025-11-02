@@ -163,15 +163,24 @@ async def analyze_text_endpoint(request: TextAnalysisRequest):
 async def analyze_audio_endpoint(file: UploadFile = File(...)):
     """
     Analyze audio file for vocal emotion/stress indicators
-    Accepts WAV/MP3 files (5-10 seconds)
+    Accepts WAV/MP3/WEBM files (5-10 seconds)
     """
     try:
         # Validate file type
-        if not file.filename.endswith(('.wav', '.mp3', '.ogg', '.flac')):
-            raise HTTPException(status_code=400, detail="Invalid audio format. Use WAV/MP3/OGG/FLAC")
+        if not file.filename.endswith(('.wav', '.mp3', '.ogg', '.flac', '.webm')):
+            raise HTTPException(status_code=400, detail="Invalid audio format. Use WAV/MP3/OGG/FLAC/WEBM")
         
         # Read audio file
         audio_bytes = await file.read()
+        
+        # Validate file size
+        if len(audio_bytes) == 0:
+            raise HTTPException(status_code=400, detail="Empty audio file")
+        
+        if len(audio_bytes) < 1000:  # Less than 1KB is suspicious
+            raise HTTPException(status_code=400, detail=f"Audio file too small: {len(audio_bytes)} bytes")
+        
+        print(f"Received audio file: {file.filename}, {len(audio_bytes)} bytes")
         
         # Perform audio analysis
         result = analyze_audio(audio_bytes, file.filename)
@@ -374,8 +383,8 @@ async def analyze_audio_enhanced_endpoint(file: UploadFile = File(...)):
     """
     try:
         # Validate file type
-        if not file.filename.endswith(('.wav', '.mp3', '.ogg', '.flac')):
-            raise HTTPException(status_code=400, detail="Invalid audio format")
+        if not file.filename.endswith(('.wav', '.mp3', '.ogg', '.flac', '.webm')):
+            raise HTTPException(status_code=400, detail="Invalid audio format. Use WAV/MP3/OGG/FLAC/WEBM")
         
         # Step 1: Get pre-trained model analysis
         audio_bytes = await file.read()
