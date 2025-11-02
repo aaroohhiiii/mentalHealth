@@ -35,7 +35,7 @@ function NewEntry() {
 
       setTextResult(response.data)
       setTextInput('')
-      alert('Text analyzed successfully!')
+      // Success - results will display automatically
     } catch (err: any) {
       console.error('Error analyzing text:', err)
       setError(err.response?.data?.detail || err.message || 'Failed to analyze text')
@@ -59,7 +59,7 @@ function NewEntry() {
       })
 
       setAudioResult(response.data)
-      alert('Audio analyzed successfully!')
+      // Success - results will display automatically
     } catch (err: any) {
       console.error('Error analyzing audio:', err)
       setError(err.response?.data?.detail || err.message || 'Failed to analyze audio')
@@ -83,7 +83,7 @@ function NewEntry() {
       })
 
       setImageResult(response.data)
-      alert('Image analyzed successfully!')
+      // Success - results will display automatically
     } catch (err: any) {
       console.error('Error analyzing image:', err)
       setError(err.response?.data?.detail || err.message || 'Failed to analyze image')
