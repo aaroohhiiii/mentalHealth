@@ -91,10 +91,18 @@ function NewEntry() {
 
   return (
     <div>
-      <div className="card">
-        <h2>✍️ New Entry</h2>
-        <p>Add daily text logs, voice check-ins, or selfies for mental health monitoring.</p>
-      </div>
+      {/* <div className="card"> */}
+        <h2 style={{
+          display:'flex' ,
+          alignItems:'center' ,
+          justifyContent:'center' ,
+          fontSize : '30px', 
+          color:'#ffffffff' ,
+          marginBottom:'20px'
+
+        }}> </h2>
+        {/* <p>Add daily text logs, voice check-ins, or selfies for mental health monitoring.</p> */}
+      
 
       {error && (
         <div className="error">
@@ -135,13 +143,13 @@ Write about your thoughts, mood, or anything on your mind..."
 
       {/* Audio Entry */}
       <div className="card">
-        <h3>🎤 Voice Check-in</h3>
+        <h3> Voice Check-in</h3>
         <UploadAudio onUpload={handleAudioUpload} />
       </div>
 
       {/* Image Entry */}
       <div className="card">
-        <h3>📸 Selfie Analysis</h3>
+        <h3> Selfie Analysis</h3>
         <UploadImage onUpload={handleImageUpload} />
       </div>
 
@@ -190,7 +198,7 @@ Write about your thoughts, mood, or anything on your mind..."
 const styles = {
   textarea: {
     background: '#d7efffff',
-
+    color: '#1a1a1a',
     width: '100%',
     padding: '1rem',
     fontSize: '1rem',

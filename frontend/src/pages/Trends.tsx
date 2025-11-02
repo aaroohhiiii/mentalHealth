@@ -51,7 +51,7 @@ function Trends() {
   return (
     <div>
       <div className="card">
-        <h2>📈 7-Day Mental Health Trend</h2>
+        <h2> 7-Day Mental Health Trend</h2>
         <p>Track your mental health indicators over the past week.</p>
       </div>
 

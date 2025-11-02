@@ -1,139 +1,250 @@
+
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #3271a5 0%, #58afdd 50%, #b8e2f4 100%);
-  font-family: "Outfit", system-ui, sans-serif;
+  /* background: linear-gradient(180deg, #b8e2f4 0%, #E9F8FF 100%); */
+  font-family: "Quicksand", "Poppins", sans-serif;
 }
 
+/* Navbar - Fixed, Frosted Glass Effect */
 .navbar {
-/* background: linear-gradient(90deg, #6abce2 0%, #8dcfec 100%); */
-/* background: linear-gradient(90deg, #235284 0%, #3271a5 100%); */
-background-color: white;
-
-  color: #333;
-  padding: 1.5rem 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #FFFFFF;
+  color: #FFFFFF;
+  position: fixed;
+  /* margin-bottom:  */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  /* background: linear-gradient(90deg, rgba(106,188,226,0.9), rgba(184,226,244,0.9)); */
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 12px rgba(35, 82, 132, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.nav-brand h1 {
-  font-size: 4rem;
-  margin-bottom: 0.25rem;
-  align-items: center;
-  justify-content: center;
+/* App Name & Motto */
+.nav-brand {
   display: flex;
-  /* color: #667eea; */
-  color:linear-gradient(90deg, #4b6cb7 0%, #182848 100%) ;
-  
- 
-  /* color: #235284; */
-  font-family: "Outfit", system-ui, sans-serif;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.app-name {
+  /* font-family: "Dancing Script"; */
+  font-size: 3rem;
   font-weight: 700;
-
+  color: #235284;
+  margin: 0;
+  /* font-style: italic; */
 }
 
-.nav-brand .subtitle {
-  font-size: 1.5rem;
-  color: #666;
-  margin-bottom: 1rem;
-  align-items: center;
-  justify-content: center;
-  display: flex;
+.motto {
+  font-size: 2rem;
+  color: #235284;
+  margin: 0;
+  gap: 0;
+  font-style: italic;
+  opacity: 0.8;
 }
 
+/* Navigation Links */
 .nav-links {
+  display: flex;
+  gap: 1.5rem;
   align-items: center;
-  justify-content: center;
-  display: flex;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
 }
 
 .nav-links button {
   background: transparent;
-  color: #333;
-  border: 2px solid #ddd;
-  padding: 1rem 2rem;
-  border-radius: 20px;
+  border: none;
+  color: #235284;
+  font-family: "Quicksand", sans-serif;
+  font-size: 1.3rem;
   font-weight: 600;
-  font-family: "Outfit", system-ui, sans-serif;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
   transition: all 0.3s ease;
+  font-style: italic;
 }
 
 .nav-links button:hover {
-background: #BFF4FF;
-background: linear-gradient(270deg, #BFF4FF, #5594FF);
-  color: white;
-  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
 }
 
 .nav-links button.active {
-  background: #5594FF;
+  background: linear-gradient(90deg, #6abce2, #58afdd);
   color: white;
-  border-color: #667eea;
+  box-shadow: 0 4px 8px rgba(106, 188, 226, 0.3);
 }
 
+/* Main Content */
 .main-content {
   flex: 1;
-  padding: 2rem;
-  max-width: 1400px;
-  width: 100%;
+  padding: 10rem 2rem 2rem;
+  max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  animation: fadeIn 0.6s ease-in;
 }
 
-.footer {
- background: linear-gradient(180deg, #3271a5 0%, #235284 100%);
+/* Greeting Section */
+.greeting-section {
+  margin-bottom: 0.5rem;
+  margin-top: 2rem;
+  animation: fadeInDown 1s ease-out;
+}
 
-  color: white;
-  padding: 1.5rem 2rem;
+.greeting-container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  margin: top 3px;;
+}
+
+.greeting-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(106, 188, 226, 0.3));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.greeting-text {
+
+  font-size: 2.5rem;
+  color: #235284;
+  font-style: italic;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(90deg, rgba(106,188,226,0.9), rgba(184,226,244,0.9));
+  backdrop-filter: blur(10px);
+  padding: 2rem;
   text-align: center;
+  color: #235284;
+  border-top: 1px solid rgba(35, 82, 132, 0.1);
 }
 
 .disclaimer {
- background: linear-gradient(90deg, #8dcfec 0%, #6abce2 100%);
-
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
   padding: 1rem;
+  border-radius: 12px;
   margin-bottom: 1rem;
   font-size: 0.9rem;
-}
-
-.footer-info {
-  font-size: 0.85rem;
-  opacity: 0.8;
+  font-style: italic;
 }
 
 .footer-info p {
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
+  font-style: italic;
+  opacity: 0.9;
 }
 
-/* Common card styles */
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  color: #333;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Cards & Sections */
+.card,
+.section {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
   margin-bottom: 1.5rem;
-  font-family: "Outfit", system-ui, sans-serif;
+  box-shadow: 0 4px 12px rgba(35, 82, 132, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(35, 82, 132, 0.15);
+}
+
+.card h2,
+.card h3 {
+  color: #235284;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 600;
+  font-style: italic;
+  margin-bottom: 1rem;
 }
 
 .card h2 {
-  color: #667eea;
-  margin-bottom: 1rem;
   font-size: 1.5rem;
-  font-family: "Outfit", system-ui, sans-serif;
-  font-weight: 700;
 }
 
 .card h3 {
-  color: #555;
-  margin-bottom: 0.75rem;
   font-size: 1.2rem;
-  font-family: "Outfit", system-ui, sans-serif;
+}
+
+.card p {
+  color: #235284;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* Buttons */
+button {
+  font-family: "Quicksand", sans-serif;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-style: italic;
+}
+
+.primary-button {
+  background: linear-gradient(90deg, #6abce2, #58afdd);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
   font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(106, 188, 226, 0.3);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(106, 188, 226, 0.4);
 }
 
 /* Risk bucket colors */
@@ -169,18 +280,44 @@ background: linear-gradient(270deg, #BFF4FF, #5594FF);
   color: #c00;
 }
 
-/* Responsive */
+/* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
-    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .nav-brand h1 {
-    font-size: 1.3rem;
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .greeting-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .greeting-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .greeting-text {
+    font-size: 1.8rem;
   }
 
   .main-content {
-    padding: 1rem;
+    padding: 8rem 1rem 1rem;
+  }
+
+  .app-name {
+    font-size: 1.5rem;
+  }
+
+  .motto {
+    font-size: 0.875rem;
+
   }
 
   .card {

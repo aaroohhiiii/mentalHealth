@@ -4,11 +4,14 @@ import NewEntry from './pages/NewEntry.tsx'
 import Trends from './pages/Trends.tsx'
 import Privacy from './pages/Privacy.tsx'
 import './App.css'
+import mentalHealthIcon from './public/icons/mental-health.png?url'
+
 
 type Page = 'dashboard' | 'newEntry' | 'trends' | 'privacy'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
+  const [userName] = useState('User') // You can replace this with actual user data
 
   const renderPage = () => {
     switch (currentPage) {
@@ -29,15 +32,16 @@ function App() {
     <div className="app">
       <nav className="navbar">
         <div className="nav-brand">
-          <h1>Project</h1>
-          <p className="subtitle">Multi-Modal Stress & Depression Detection</p>
+          <h1 className="app-name">MindEase</h1>
+          <p className="motto">Find Calm. Feel Better.</p>
+          {/* <img src='../public/icons/healthIcon.png' /> */}
         </div>
         <div className="nav-links">
           <button
             className={currentPage === 'dashboard' ? 'active' : ''}
             onClick={() => setCurrentPage('dashboard')}
           >
-            Dashboard
+            Home
           </button>
           <button
             className={currentPage === 'newEntry' ? 'active' : ''}
@@ -49,7 +53,7 @@ function App() {
             className={currentPage === 'trends' ? 'active' : ''}
             onClick={() => setCurrentPage('trends')}
           >
-            Trends
+            Dashboard
           </button>
           <button
             className={currentPage === 'privacy' ? 'active' : ''}
@@ -61,12 +65,24 @@ function App() {
       </nav>
 
       <main className="main-content">
+        {currentPage === 'dashboard' && (
+          <div className="greeting-section">
+            <div className="greeting-container">
+              <img 
+                src={mentalHealthIcon} 
+                alt="Mental Health" 
+                className="greeting-image"
+              />
+              <h1 className="greeting-text">Hey, {userName} </h1>
+            </div>
+          </div>
+        )}
         {renderPage()}
       </main>
 
       <footer className="footer">
         <div className="disclaimer">
-          ⚠️ <strong>Disclaimer:</strong> This is not a medical device. Results are for educational/research purposes only. 
+           <strong>Disclaimer:</strong> This is not a medical device. Results are for educational/research purposes only. 
           If you're experiencing mental health concerns, please consult a qualified healthcare professional.
         </div>
         <div className="footer-info">

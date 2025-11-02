@@ -90,7 +90,7 @@ function Dashboard() {
   return (
     <div>
       <div className="card">
-        <h2> Today's Mental Health Assessment</h2>
+        <h2>📊 Today's Mental Health Assessment</h2>
         
         {data.latestScore !== null ? (
           <RiskGauge score={data.latestScore} bucket={data.latestBucket} />
@@ -142,14 +142,14 @@ function Dashboard() {
       </div>
 
       <div className="card" style={styles.disclaimer}>
-        <h3>ℹ️ How to Use This Dashboard</h3>
+        {/* <h3>ℹ️ How to Use This Dashboard</h3>
         <ul style={styles.list}>
           <li>Add daily entries using the <strong>New Entry</strong> page</li>
           <li>Track your mental health trends over time</li>
           <li>Review explanations for each analysis</li>
           <li>This is <strong>not a medical diagnosis</strong> - consult professionals for concerns</li>
           <li>All data is processed locally and can be deleted anytime</li>
-        </ul>
+        </ul> */}
       </div>
     </div>
   )
