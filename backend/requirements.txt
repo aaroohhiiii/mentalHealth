@@ -4,27 +4,27 @@ uvicorn[standard]==0.27.0
 python-multipart==0.0.6
 
 # Machine Learning
-scikit-learn==1.4.0
-joblib==1.3.2
-xgboost==2.0.3
-numpy==1.26.3
+scikit-learn>=1.3.0
+joblib>=1.3.0
+xgboost>=2.0.0
+numpy>=1.24.0
 
-# NLP
-transformers==4.37.2
-torch==2.1.2
-sentencepiece==0.1.99
+# NLP (Optional - for future real model implementation)
+# transformers==4.37.2
+# torch==2.1.2
+# sentencepiece==0.1.99
 
-# Audio Processing
-librosa==0.10.1
-soundfile==0.12.1
+# Audio Processing (Optional - for future real model implementation)
+# librosa==0.10.1
+# soundfile==0.12.1
 
-# Image Processing
-opencv-python==4.9.0.80
-pillow==10.2.0
-fer==22.5.1
+# Image Processing (Optional - for future real model implementation)
+# opencv-python==4.9.0.80
+# pillow==10.2.0
+# fer==22.5.1
 
-# Explainability
-shap==0.44.1
+# Explainability (Optional - for future real model implementation)
+# shap==0.44.1
 
 # Utils
 pydantic==2.5.3
