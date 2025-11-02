@@ -239,27 +239,29 @@ const styles = {
   combinedSection: {
     border: '2px solid #667eea',
     borderRadius: '12px',
-    padding: '2rem',
+    padding: '1.5rem',
     background: 'rgba(102, 126, 234, 0.05)',
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1rem',
+    gap: '0.75rem',
   },
   cameraSection: {
     textAlign: 'center' as const,
-    padding: '1rem',
+    padding: '0.5rem',
   },
   uploadBox: {
     textAlign: 'center' as const,
-    padding: '1rem',
+    padding: '0.5rem',
   },
-  icon: {
-    width :'80px' ,
+ icon: {
     height:'80px',
+    width :'80px',
     fontSize: '3rem',
     marginBottom: '1rem',
-    // display:'flex',
-    
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: '0 auto 1rem auto',
   },
   description: {
     color: '#666',

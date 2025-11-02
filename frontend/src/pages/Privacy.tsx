@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import axios from 'axios'
+const privacyIcon = new URL('../public/icons/privacy.png', import.meta.url).href
+const warningIcon = new URL('../public/icons/alert.png', import.meta.url).href
+
 
 const API_BASE = 'http://localhost:8000'
 
@@ -38,12 +41,20 @@ function Privacy() {
   return (
     <div>
       <div className="card">
-        <h2>🔒 Privacy & Data Control</h2>
+        <img src={privacyIcon} alt="" style={{
+            height:'40px' ,
+            width:'40px',
+          }} />
+        <h2>
+          
+           Privacy & Data Control</h2>
         <p>Your privacy is our priority. All data is processed locally and you have full control.</p>
       </div>
 
       <div className="card">
-        <h3>📊 Your Data</h3>
+        <h3>
+         
+          Your Data</h3>
         <button onClick={fetchStats} disabled={loading} style={styles.button}>
           {loading ? 'Loading...' : 'Check My Data'}
         </button>
@@ -70,7 +81,11 @@ function Privacy() {
       </div>
 
       <div className="card" style={styles.dangerZone}>
-        <h3>⚠️ Delete All Data</h3>
+        <img src={warningIcon} alt="" style={{
+          height:'40px' ,
+          width:'40px',
+        }} />
+        <h3>Delete All Data</h3>
         <p>Permanently delete all your stored analysis data. This action cannot be undone.</p>
 
         {!showConfirm ? (
@@ -94,7 +109,7 @@ function Privacy() {
         )}
       </div>
 
-      <div className="card">
+      {/* <div className="card">
         <h3>🛡️ Privacy Policy</h3>
         <div style={styles.policyText}>
           <h4>How We Handle Your Data:</h4>
@@ -123,10 +138,14 @@ function Privacy() {
             <li>✅ Right to use the system completely offline</li>
           </ul>
         </div>
-      </div>
+      </div> */}
 
       <div className="card" style={styles.disclaimer}>
-        <h3>⚖️ Legal Disclaimer</h3>
+        <img src={warningIcon} alt="" style={{
+          height:'40px' ,
+          width:'40px',
+        }} />
+        <h3> Legal Disclaimer</h3>
         <p style={styles.disclaimerText}>
           This Mental Health AI Monitor is an <strong>educational and research tool</strong> developed 
           by Aarohi (B.Tech). It is <strong>NOT a medical device</strong> and does <strong>NOT provide 
@@ -234,7 +253,7 @@ const styles = {
   },
   disclaimer: {
     background: 'rgba(255, 193, 7, 0.1)',
-    border: '2px solid #ffc107',
+    border: '2px solid #9acddaff',
   },
   disclaimerText: {
     lineHeight: '1.6',

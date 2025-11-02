@@ -113,7 +113,7 @@ function Trends() {
           </div>
         )}
       </div>
-
+{/* 
       <div className="card" style={styles.insights}>
         <h3>💡 Insights</h3>
         <ul style={styles.list}>
@@ -123,7 +123,7 @@ function Trends() {
           <li><strong>Self-care:</strong> Use insights to adjust sleep, exercise, and stress management</li>
           <li><strong>Professional help:</strong> If you see persistent high scores, consider consulting a mental health professional</li>
         </ul>
-      </div>
+      </div> */}
     </div>
   )
 }

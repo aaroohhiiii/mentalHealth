@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 const uploadIcon = new URL('../public/icons/folder.png', import.meta.url).href
+const micIcon = new URL('../public/icons/mic.png', import.meta.url).href
+
 
 interface UploadAudioProps {
   onUpload: (file: File) => void
@@ -117,9 +119,12 @@ const UploadAudio: React.FC<UploadAudioProps> = ({ onUpload }) => {
           </p>
 
           {!isRecording ? (
-            <button onClick={startRecording} style={styles.recordButton}>
-              🎤 Start Recording
-            </button>
+            <div style={styles.buttonContainer}>
+              <img alt='Microphone' src={micIcon} style={styles.micIcon}/>
+              <button onClick={startRecording} style={styles.recordButton}>
+                Start Recording
+              </button>
+            </div>
           ) : (
             <div style={styles.recordingActive}>
               <div style={styles.recordingIndicator}>
@@ -127,7 +132,7 @@ const UploadAudio: React.FC<UploadAudioProps> = ({ onUpload }) => {
               </div>
               <div style={styles.timer}>{formatTime(recordingTime)}</div>
               <button onClick={stopRecording} style={styles.stopButton}>
-                ⏹️ Stop Recording
+                ⏹️Stop Recording
               </button>
             </div>
           )}
@@ -194,23 +199,28 @@ const styles = {
   combinedSection: {
     border: '2px solid #667eea',
     borderRadius: '12px',
-    padding: '2rem',
+    padding: '1.5rem',
     background: 'rgba(102, 126, 234, 0.05)',
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1rem',
+    gap: '0.75rem',
   },
   recordSection: {
     textAlign: 'center' as const,
-    padding: '1rem',
+    padding: '0.5rem',
   },
   uploadBox: {
     textAlign: 'center' as const,
-    padding: '1rem',
+    padding: '0.5rem',
   },
   icon: {
+    height:'80px',
+    width :'80px',
     fontSize: '3rem',
-    marginBottom: '1rem',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: '0 auto 0.5rem auto',
   },
   iconImage: {
     marginBottom: '1rem',
@@ -226,6 +236,18 @@ const styles = {
     color: '#4f4e4eff',
     marginBottom: '1.5rem',
   },
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: '1rem',
+    marginTop: '1rem',
+  },
+  micIcon: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'contain' as const,
+  },
   recordButton: {
     background: '#667eea',
     color: 'white',
@@ -235,7 +257,6 @@ const styles = {
     fontSize: '1rem',
     fontWeight: 'bold' as const,
     cursor: 'pointer' as const,
-    marginTop: '1rem',
   },
   recordingActive: {
     display: 'flex',
