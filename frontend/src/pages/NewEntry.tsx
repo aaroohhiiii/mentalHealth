@@ -106,12 +106,19 @@ function NewEntry() {
 
       {/* Text Entry */}
       <div className="card">
-        <h3>📝 Text Log</h3>
+        <h3 style={{
+          display:'flex' ,
+          alignItems:'center' ,
+          justifyContent:'center' ,
+          fontSize : '30px'
+
+        }}>Lets Check In our thoughts for today !</h3>
         <form onSubmit={handleTextSubmit}>
           <textarea
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
-            placeholder="How are you feeling today? Write about your thoughts, mood, or anything on your mind..."
+            placeholder="How are you feeling today? 
+Write about your thoughts, mood, or anything on your mind..."
             style={styles.textarea}
             rows={6}
           />
@@ -120,7 +127,7 @@ function NewEntry() {
               Analyze Text
             </button>
             <span style={styles.hint}>
-              Tip: Be honest and detailed for better insights
+              Tip: Everything is gonna be fine ! Be honest and detailed for better insights and sit back :D
             </span>
           </div>
         </form>
@@ -182,6 +189,8 @@ function NewEntry() {
 
 const styles = {
   textarea: {
+    background: '#d7efffff',
+
     width: '100%',
     padding: '1rem',
     fontSize: '1rem',
@@ -192,6 +201,7 @@ const styles = {
     marginBottom: '1rem',
   },
   buttonContainer: {
+    
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -199,7 +209,7 @@ const styles = {
     gap: '1rem',
   },
   submitButton: {
-    background: '#667eea',
+    background: '#5cbeffff',
     color: 'white',
     border: 'none',
     padding: '0.75rem 2rem',

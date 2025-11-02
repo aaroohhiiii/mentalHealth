@@ -90,7 +90,7 @@ function Dashboard() {
   return (
     <div>
       <div className="card">
-        <h2>📊 Today's Mental Health Assessment</h2>
+        <h2> Today's Mental Health Assessment</h2>
         
         {data.latestScore !== null ? (
           <RiskGauge score={data.latestScore} bucket={data.latestBucket} />

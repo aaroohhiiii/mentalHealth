@@ -29,7 +29,7 @@ function App() {
     <div className="app">
       <nav className="navbar">
         <div className="nav-brand">
-          <h1>🧠 Mental Health AI Monitor</h1>
+          <h1>Project</h1>
           <p className="subtitle">Multi-Modal Stress & Depression Detection</p>
         </div>
         <div className="nav-links">
@@ -70,7 +70,7 @@ function App() {
           If you're experiencing mental health concerns, please consult a qualified healthcare professional.
         </div>
         <div className="footer-info">
-          <p>Developed by Aarohi (B.Tech) | Mental Health AI Research Project</p>
+          {/* <p>Developed by Aarohi (B.Tech) | Mental Health AI Research Project</p> */}
           <p>Privacy-First • Local Processing • Non-Diagnostic</p>
         </div>
       </footer>

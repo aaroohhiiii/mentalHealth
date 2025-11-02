@@ -2,29 +2,49 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3271a5 0%, #58afdd 50%, #b8e2f4 100%);
+  font-family: "Outfit", system-ui, sans-serif;
 }
 
 .navbar {
-  background: rgba(255, 255, 255, 0.95);
+/* background: linear-gradient(90deg, #6abce2 0%, #8dcfec 100%); */
+/* background: linear-gradient(90deg, #235284 0%, #3271a5 100%); */
+background-color: white;
+
   color: #333;
   padding: 1.5rem 2rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .nav-brand h1 {
-  font-size: 1.8rem;
+  font-size: 4rem;
   margin-bottom: 0.25rem;
-  color: #667eea;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  /* color: #667eea; */
+  color:linear-gradient(90deg, #4b6cb7 0%, #182848 100%) ;
+  
+ 
+  /* color: #235284; */
+  font-family: "Outfit", system-ui, sans-serif;
+  font-weight: 700;
+
 }
 
 .nav-brand .subtitle {
-  font-size: 0.9rem;
+  font-size: 1.5rem;
   color: #666;
   margin-bottom: 1rem;
+  align-items: center;
+  justify-content: center;
+  display: flex;
 }
 
 .nav-links {
+  align-items: center;
+  justify-content: center;
+  display: flex;
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
@@ -34,21 +54,23 @@
   background: transparent;
   color: #333;
   border: 2px solid #ddd;
-  padding: 0.5rem 1.5rem;
+  padding: 1rem 2rem;
   border-radius: 20px;
   font-weight: 600;
+  font-family: "Outfit", system-ui, sans-serif;
   transition: all 0.3s ease;
 }
 
 .nav-links button:hover {
-  background: #667eea;
+background: #BFF4FF;
+background: linear-gradient(270deg, #BFF4FF, #5594FF);
   color: white;
   border-color: #667eea;
   transform: translateY(-2px);
 }
 
 .nav-links button.active {
-  background: #667eea;
+  background: #5594FF;
   color: white;
   border-color: #667eea;
 }
@@ -62,15 +84,16 @@
 }
 
 .footer {
-  background: rgba(0, 0, 0, 0.8);
+ background: linear-gradient(180deg, #3271a5 0%, #235284 100%);
+
   color: white;
   padding: 1.5rem 2rem;
   text-align: center;
 }
 
 .disclaimer {
-  background: rgba(255, 193, 7, 0.2);
-  border: 2px solid #ffc107;
+ background: linear-gradient(90deg, #8dcfec 0%, #6abce2 100%);
+
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -94,18 +117,23 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   color: #333;
   margin-bottom: 1.5rem;
+  font-family: "Outfit", system-ui, sans-serif;
 }
 
 .card h2 {
   color: #667eea;
   margin-bottom: 1rem;
   font-size: 1.5rem;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-weight: 700;
 }
 
 .card h3 {
   color: #555;
   margin-bottom: 0.75rem;
   font-size: 1.2rem;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-weight: 600;
 }
 
 /* Risk bucket colors */
