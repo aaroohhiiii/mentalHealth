@@ -159,14 +159,14 @@ Aarohi (B.Tech) - Mental Health AI Research Project
 # Navigate to backend directory
 cd backend
 
-# Create virtual environment
-python -m venv .venv
+# Create virtual environment (if not already created)
+python3.10 -m venv venv
 
 # Activate virtual environment
 # macOS/Linux:
-source .venv/bin/activate
+source venv/bin/activate
 # Windows:
-.venv\Scripts\activate
+venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -196,10 +196,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES=43200
 
 **Start the backend server:**
 ```bash
-uvicorn app:app --reload --port 8000
+# Method 1: Using venv Python directly (Recommended)
+cd /Users/karthiksarma/mentalHealth/mentalHealth/backend
+./venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+
+# Method 2: Using system Python 3.10
+cd backend
+python3.10 -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Server will be available at: `http://localhost:8000`
+Server will be available at: `http://127.0.0.1:8000`
+
+**API Documentation:**
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
 
 **Note**: On first run, the system will automatically download ~1.8GB of pre-trained models.
 
@@ -409,6 +419,56 @@ stress signals. Want to talk about what's weighing on you most?"
 | Fusion | Weighted Average | ~88-92% | ~50ms |
 
 *Processing times on average hardware. LLM enhancement adds ~1-2 seconds.*
+
+---
+
+## 🔧 Troubleshooting
+
+### Backend Issues
+
+**Port already in use:**
+```bash
+# Kill process on port 8000
+lsof -ti:8000 | xargs kill -9
+```
+
+**Virtual environment issues:**
+```bash
+# Recreate virtual environment
+cd backend
+rm -rf venv
+python3.10 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+**MongoDB connection errors:**
+- Verify `MONGO_URI` in `.env` file
+- Check MongoDB Atlas network access (allow your IP)
+- Ensure database user has proper permissions
+
+**Groq API errors:**
+- Verify `GROQ_API_KEY` in `.env` file
+- Check API quota at [console.groq.com](https://console.groq.com)
+
+### Frontend Issues
+
+**npm install fails:**
+```bash
+# Clear cache and reinstall
+cd frontend
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install
+```
+
+**CORS errors:**
+- Ensure backend is running on `http://127.0.0.1:8000`
+- Check that frontend is calling the correct backend URL
+
+**Authentication errors:**
+- Clear browser localStorage
+- Re-login to get new JWT token
 
 ---
 
