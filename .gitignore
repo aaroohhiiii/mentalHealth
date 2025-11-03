@@ -49,7 +49,12 @@ yarn.lock
 # Build outputs
 frontend/dist/
 frontend/build/
+
+# Logs
 *.log
+backend/*.log
+backend/**/*.log
+archive/logs/
 
 # Data files (privacy)
 backend/data/

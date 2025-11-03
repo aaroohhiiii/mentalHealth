@@ -1,0 +1,232 @@
+/* Feedback Card - Minimal Professional Design */
+.feedback-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(35, 82, 132, 0.08);
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(106, 188, 226, 0.2);
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(90deg, #f8fbfd 0%, #ffffff 100%);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(106, 188, 226, 0.1);
+  transition: background 0.2s ease;
+}
+
+.feedback-header:hover {
+  background: linear-gradient(90deg, #f0f7fa 0%, #f8fbfd 100%);
+}
+
+.feedback-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.feedback-icon {
+  font-size: 1.25rem;
+  color: #6abce2;
+  font-weight: bold;
+}
+
+.feedback-title h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #235284;
+  font-family: "Quicksand", sans-serif;
+}
+
+.expand-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #235284;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.expand-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Feedback Content */
+.feedback-content {
+  padding: 1.25rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feedback-section {
+  margin-bottom: 1.25rem;
+}
+
+.feedback-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Risk Badge */
+.risk-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f8fbfd;
+  border-radius: 8px;
+}
+
+.risk-label {
+  font-weight: 600;
+  color: #235284;
+  font-size: 0.95rem;
+}
+
+.risk-value {
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Supportive & Interpretation Text */
+.supportive-text,
+.interpretation-text {
+  color: #455a64;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+  padding: 0.5rem;
+  background: #f0f7fa;
+  border-radius: 6px;
+  border-left: 3px solid #6abce2;
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #235284;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.75rem 0;
+  font-family: "Quicksand", sans-serif;
+}
+
+/* Reasoning Text */
+.reasoning-text {
+  color: #546e7a;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Lists - Minimal Style */
+.concerns-list,
+.suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.concerns-list li,
+.suggestions-list li {
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #f8fbfd;
+  border-radius: 6px;
+  color: #455a64;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 2rem;
+}
+
+.concerns-list li:before {
+  content: "•";
+  position: absolute;
+  left: 0.75rem;
+  color: #ffa726;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.suggestions-list li:before {
+  content: "→";
+  position: absolute;
+  left: 0.75rem;
+  color: #6abce2;
+  font-weight: bold;
+}
+
+.concerns-list li:last-child,
+.suggestions-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Professional Help Alert */
+.professional-help-alert {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-left: 4px solid #ffa726;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.alert-text {
+  margin: 0;
+  color: #e65100;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.alert-text strong {
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .feedback-card {
+    margin-top: 1rem;
+  }
+
+  .feedback-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .feedback-content {
+    padding: 1rem;
+  }
+
+  .feedback-title h4 {
+    font-size: 1rem;
+  }
+
+  .concerns-list li,
+  .suggestions-list li {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.625rem;
+    padding-left: 1.75rem;
+  }
+}

@@ -2,14 +2,17 @@ import { useState } from 'react'
 import axios from 'axios'
 import UploadAudio from '../components/UploadAudio'
 import UploadImage from '../components/UploadImage'
-import ModalityCard from '../components/ModalityCard'
+import FeedbackCard from '../components/FeedbackCard'
+import ChatBot from '../components/ChatBot'
 import analysisIcon from '../public/icons/analysis.png?url'
 import cameraIcon from '../public/icons/camera.png?url'
 import audioIcon from '../public/icons/audio-waves.png?url'
+import { useAuth } from '../context/AuthContext'
 
 const API_BASE = 'http://localhost:8000'
 
 function NewEntry() {
+  const { token } = useAuth()
   const [textInput, setTextInput] = useState('')
   const [textResult, setTextResult] = useState<any>(null)
   const [audioResult, setAudioResult] = useState<any>(null)
@@ -29,9 +32,18 @@ function NewEntry() {
       setLoading(true)
       setError(null)
 
-      const response = await axios.post(`${API_BASE}/analyze/text`, {
-        text: textInput,
-      })
+      // Use today's date
+      const today = new Date().toISOString().split('T')[0]
+
+      const response = await axios.post(
+        `${API_BASE}/sessions/analyze/text?session_date=${today}`, 
+        { text: textInput },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
 
       setTextResult(response.data)
       setTextInput('')
@@ -49,15 +61,22 @@ function NewEntry() {
       setLoading(true)
       setError(null)
 
+      const today = new Date().toISOString().split('T')[0]
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await axios.post(`${API_BASE}/analyze/audio`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      const response = await axios.post(
+        `${API_BASE}/sessions/analyze/audio?session_date=${today}`, 
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      )
 
+      console.log('Audio response:', response.data)
       setAudioResult(response.data)
       // Success - results will display automatically
     } catch (err: any) {
@@ -73,15 +92,22 @@ function NewEntry() {
       setLoading(true)
       setError(null)
 
+      const today = new Date().toISOString().split('T')[0]
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await axios.post(`${API_BASE}/analyze/image`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      const response = await axios.post(
+        `${API_BASE}/sessions/analyze/image?session_date=${today}`,
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      )
 
+      console.log('Image response:', response.data)
       setImageResult(response.data)
       // Success - results will display automatically
     } catch (err: any) {
@@ -156,7 +182,7 @@ Write about your thoughts, mood, or anything on your mind..."
         <UploadImage onUpload={handleImageUpload} />
       </div>
 
-      {/* Results */}
+      {/* Results - AI Insights Only */}
       {(textResult || audioResult || imageResult) && (
         <>
           <div className="card">
@@ -166,37 +192,49 @@ Write about your thoughts, mood, or anything on your mind..."
             </h2>
           </div>
 
-          <div style={styles.resultsGrid}>
-            {textResult && (
-              <ModalityCard
-                modality="Text"
-                score={textResult.score}
-                bucket={textResult.bucket}
-                explain={textResult.explain}
-                icon={analysisIcon}
-              />
-            )}
-            {audioResult && (
-              <ModalityCard
-                modality="Audio"
-                score={audioResult.score}
-                bucket={audioResult.bucket}
-                explain={audioResult.explain}
-                icon={audioIcon}
-              />
-            )}
-            {imageResult && (
-              <ModalityCard
-                modality="Image"
-                score={imageResult.score}
-                bucket={imageResult.bucket}
-                explain={imageResult.explain}
-                icon={cameraIcon}
-              />
-            )}
-          </div>
+          {console.log('Render check - audioResult:', audioResult, 'imageResult:', imageResult)}
+
+          {textResult && textResult.llm_feedback && (
+            <div className="card">
+              <h3 style={styles.modalityTitle}>
+                <img src={analysisIcon} alt="Text" style={styles.modalityIcon} />
+                Text Analysis
+              </h3>
+              <FeedbackCard feedback={textResult.llm_feedback} type="text" />
+            </div>
+          )}
+
+          {audioResult && audioResult.llm_feedback && (
+            <div className="card">
+              <h3 style={styles.modalityTitle}>
+                <img src={audioIcon} alt="Audio" style={styles.modalityIcon} />
+                Voice Analysis
+              </h3>
+              <FeedbackCard feedback={audioResult.llm_feedback} type="audio" />
+            </div>
+          )}
+
+          {imageResult && imageResult.llm_feedback && (
+            <div className="card">
+              <h3 style={styles.modalityTitle}>
+                <img src={cameraIcon} alt="Image" style={styles.modalityIcon} />
+                Image Analysis
+              </h3>
+              <FeedbackCard feedback={imageResult.llm_feedback} type="image" />
+            </div>
+          )}
         </>
       )}
+
+      {/* ChatBot - Context-aware mental health assistant */}
+      <ChatBot 
+        sessionDate={new Date().toISOString().split('T')[0]}
+        sessionContext={{
+          textResult,
+          audioResult,
+          imageResult
+        }}
+      />
     </div>
   )
 }
@@ -267,6 +305,20 @@ const styles = {
   headerIcon: {
     width: '32px',
     height: '32px',
+    objectFit: 'contain' as const,
+  },
+  modalityTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    color: '#235284',
+    fontSize: '1.2rem',
+    fontWeight: 'bold' as const,
+    marginBottom: '1rem',
+  },
+  modalityIcon: {
+    width: '24px',
+    height: '24px',
     objectFit: 'contain' as const,
   },
 }

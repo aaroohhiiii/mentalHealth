@@ -2,10 +2,21 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import TrendChart from '../components/TrendChart'
 import analysisIcon from '../public/icons/analysis.png?url'
+import { useAuth } from '../context/AuthContext'
 
 const API_BASE = 'http://localhost:8000'
 
+interface Session {
+  _id: string
+  date: string
+  text_analysis?: any
+  audio_analysis?: any
+  image_analysis?: any
+  fusion_result?: any
+}
+
 function Trends() {
+  const { token } = useAuth()
   const [trendData, setTrendData] = useState<{
     dates: string[]
     scores: (number | null)[]
@@ -15,16 +26,60 @@ function Trends() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchTrendData()
-  }, [])
+    if (token) {
+      fetchTrendData()
+    }
+  }, [token])
 
   const fetchTrendData = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const response = await axios.get(`${API_BASE}/trend/7d`)
-      setTrendData(response.data)
+      // Fetch sessions from MongoDB
+      const response = await axios.get(`${API_BASE}/sessions/my-sessions`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        params: {
+          limit: 30
+        }
+      })
+
+      const sessions: Session[] = response.data.sessions || []
+
+      // Build trend data from last 7 days
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date()
+        d.setDate(d.getDate() - (6 - i))
+        return d.toISOString().split('T')[0]
+      })
+
+      const trendScores = last7Days.map(date => {
+        const session = sessions.find(s => s.date === date)
+        if (!session) return null
+        return session.fusion_result?.final_score 
+          || session.text_analysis?.score 
+          || session.audio_analysis?.score 
+          || session.image_analysis?.score 
+          || null
+      })
+
+      const trendBuckets = last7Days.map(date => {
+        const session = sessions.find(s => s.date === date)
+        if (!session) return 'No Data'
+        return session.fusion_result?.final_bucket 
+          || session.text_analysis?.bucket 
+          || session.audio_analysis?.bucket 
+          || session.image_analysis?.bucket 
+          || 'No Data'
+      })
+
+      setTrendData({
+        dates: last7Days,
+        scores: trendScores,
+        buckets: trendBuckets
+      })
     } catch (err: any) {
       console.error('Error fetching trend data:', err)
       setError(err.message || 'Failed to load trend data')

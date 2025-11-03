@@ -7,6 +7,10 @@ based on pre-trained model outputs
 import os
 from typing import Dict, List, Optional
 import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 try:
     from groq import Groq
@@ -103,35 +107,43 @@ def enhance_text_analysis(text: str, model_result: Dict) -> Dict:
         positive_indicators = explain.get('positive_indicators', 0)
         
         # Prepare prompt
-        prompt = f"""You are a compassionate mental health assessment AI. Analyze this data and provide:
-1. Risk level (Low/Moderate/High) with clear reasoning
-2. Top 3 key concerns to monitor
-3. 3 specific, actionable suggestions for the user
+        prompt = f"""You are a compassionate mental health support assistant. Analyze the user's text and provide thoughtful, actionable feedback.
 
-**User's Text:**
+**User's Input:**
 "{text[:500]}"  
 
-**Analysis from sentiment model:**
-- Sentiment Score: {score} (0=positive, 1=concerning)
-- Sentiment: {sentiment}
-- Themes detected: {', '.join(dominant_themes) if dominant_themes else 'None detected'}
-- Negative indicators: {negative_indicators}
-- Positive indicators: {positive_indicators}
+**Sentiment Analysis Results:**
+- Stress/Concern Score: {score:.2f} (0.0 = very positive, 1.0 = high concern)
+- Overall Sentiment: {sentiment}
+- Themes Identified: {', '.join(dominant_themes) if dominant_themes else 'None detected'}
+- Negative Indicators: {negative_indicators}
+- Positive Indicators: {positive_indicators}
 
-**Important Guidelines:**
-- Be compassionate and non-judgmental
-- Provide practical, actionable advice
-- Consider context and nuance
-- Don't diagnose, but offer supportive guidance
-- If risk is high, gently suggest professional help
+**Your Task:**
+Provide a warm, professional response that helps the user understand their emotional state and offers practical support.
 
-Respond in JSON format:
+**Guidelines:**
+1. Be empathetic and non-judgmental
+2. Acknowledge their feelings with validation
+3. Identify 2-3 specific concerns from their text
+4. Provide 3 concrete, actionable suggestions they can implement today
+5. Use encouraging but realistic language
+6. If the text indicates severe distress, crisis, or self-harm thoughts, set needs_professional_help to true
+7. NO EMOJIS - use professional, warm language only
+
+**Response Format (JSON):**
 {{
   "risk_level": "Low|Moderate|High",
-  "reasoning": "Brief explanation of risk assessment",
-  "key_concerns": ["concern1", "concern2", "concern3"],
-  "suggestions": ["suggestion1", "suggestion2", "suggestion3"],
-  "needs_professional_help": true|false
+  "reasoning": "2-3 sentences explaining the risk assessment based on their specific words and themes",
+  "supportive_message": "A brief, warm message acknowledging their feelings (1-2 sentences)",
+  "key_concerns": ["specific concern 1", "specific concern 2", "specific concern 3"],
+  "suggestions": [
+    "Immediate action: [specific, practical step they can take in the next hour]",
+    "Short-term strategy: [something they can do today or this week]",
+    "Long-term support: [ongoing practice or resource to consider]"
+  ],
+  "needs_professional_help": true|false,
+  "professional_help_reason": "Brief explanation if professional help is recommended, empty string otherwise"
 }}"""
 
         # Call Groq API
@@ -153,11 +165,15 @@ Respond in JSON format:
             "enhanced": True,
             "original_score": model_result.get('score', 0),
             "original_bucket": bucket,
-            "llm_risk_level": llm_output.get('risk_level', bucket),
-            "llm_reasoning": llm_output.get('reasoning', ''),
-            "key_concerns": llm_output.get('key_concerns', []),
-            "suggestions": llm_output.get('suggestions', []),
-            "needs_professional_help": llm_output.get('needs_professional_help', False),
+            "llm_feedback": {
+                "risk_level": llm_output.get('risk_level', bucket),
+                "reasoning": llm_output.get('reasoning', ''),
+                "supportive_message": llm_output.get('supportive_message', ''),
+                "key_concerns": llm_output.get('key_concerns', []),
+                "suggestions": llm_output.get('suggestions', []),
+                "needs_professional_help": llm_output.get('needs_professional_help', False),
+                "professional_help_reason": llm_output.get('professional_help_reason', '')
+            },
             "model_explain": model_result.get('explain', {})
         }
     
@@ -195,31 +211,35 @@ def enhance_audio_analysis(audio_result: Dict) -> Dict:
         dominant_emotion = explain.get('dominant_emotion', 'neutral')
         emotion_distribution = explain.get('emotion_distribution', {})
         
-        prompt = f"""Analyze this voice emotion data and provide mental health insights.
+        prompt = f"""You are a compassionate mental health assistant analyzing voice patterns.
 
-**Vocal Emotion Analysis:**
-- Dominant emotion: {dominant_emotion}
-- Emotion distribution: {json.dumps(emotion_distribution)}
-- Stress score: {score} (0=calm, 1=high stress)
+**Voice Data:**
+Dominant Emotion: {dominant_emotion}
+Emotion Distribution: {json.dumps(emotion_distribution)}
+Stress Level: {score:.2f} (0=calm, 1=stressed)
 
-Provide:
-1. What does this vocal pattern suggest about the person's mental state?
-2. Should they be concerned? (Yes/No with brief reason)
-3. One actionable tip based on the detected emotion
+**Instructions:**
+Provide empathetic, practical feedback on voice patterns. NO EMOJIS. Be concise and warm.
 
-Respond in JSON:
+**Required JSON Response:**
 {{
-  "interpretation": "Brief insight about mental state",
+  "interpretation": "1-2 sentences on what voice suggests about emotional state",
   "concern_level": "Low|Moderate|High",
-  "concern_reason": "Why this level?",
-  "actionable_tip": "One specific suggestion"
+  "supportive_message": "1 sentence validating their feelings",
+  "key_observations": ["observation 1", "observation 2"],
+  "suggestions": [
+    "Immediate: [emotion regulation technique]",
+    "Practice: [breathing or vocal exercise]",
+    "Support: [strategy for detected emotion]"
+  ],
+  "needs_attention": true|false
 }}"""
 
         response = client.chat.completions.create(
             model=GROQ_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=300,
+            max_tokens=400,
             response_format={"type": "json_object"}
         )
         
@@ -229,10 +249,14 @@ Respond in JSON:
             "enhanced": True,
             "original_score": score,
             "original_emotion": dominant_emotion,
-            "interpretation": llm_output.get('interpretation', ''),
-            "concern_level": llm_output.get('concern_level', ''),
-            "concern_reason": llm_output.get('concern_reason', ''),
-            "actionable_tip": llm_output.get('actionable_tip', ''),
+            "llm_feedback": {
+                "interpretation": llm_output.get('interpretation', ''),
+                "concern_level": llm_output.get('concern_level', ''),
+                "supportive_message": llm_output.get('supportive_message', ''),
+                "key_observations": llm_output.get('key_observations', []),
+                "suggestions": llm_output.get('suggestions', []),
+                "needs_attention": llm_output.get('needs_attention', False)
+            },
             "emotion_distribution": emotion_distribution
         }
     
@@ -271,31 +295,36 @@ def enhance_image_analysis(image_result: Dict) -> Dict:
         dominant_emotion = explain.get('dominant_emotion', 'neutral')
         top_emotions = image_result.get('top_emotions', [])
         
-        prompt = f"""Analyze this facial expression data for mental health insights.
+        prompt = f"""You are a compassionate mental health assistant analyzing facial expressions.
 
-**Facial Expression Analysis:**
-- Face detected: {face_detected}
-- Dominant emotion: {dominant_emotion}
-- Top emotions: {json.dumps(top_emotions)}
-- Stress score: {score} (0=calm, 1=stressed)
+**Analysis Data:**
+Face Detected: {face_detected}
+Dominant Emotion: {dominant_emotion}
+Top Emotions: {json.dumps(top_emotions)}
+Stress Score: {score:.2f} (0=calm, 1=stressed)
 
-Provide:
-1. What might this facial expression indicate about current mood?
-2. Any patterns to monitor?
-3. One mood-boosting suggestion
+**Instructions:**
+Provide empathetic, practical feedback. NO EMOJIS. Be concise and supportive.
 
-Respond in JSON:
+**Required JSON Response:**
 {{
-  "mood_interpretation": "Brief insight",
-  "patterns_to_monitor": "What to watch for",
-  "mood_boost_tip": "One actionable suggestion"
+  "interpretation": "1-2 sentences on what expression suggests about emotional state",
+  "concern_level": "Low|Moderate|High",
+  "supportive_message": "1 sentence acknowledging their state",
+  "key_observations": ["observation 1", "observation 2"],
+  "suggestions": [
+    "Immediate: [quick technique]",
+    "Activity: [mood-shifting activity]",
+    "Practice: [wellness strategy]"
+  ],
+  "needs_attention": true|false
 }}"""
 
         response = client.chat.completions.create(
             model=GROQ_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=250,
+            max_tokens=400,
             response_format={"type": "json_object"}
         )
         
@@ -304,11 +333,16 @@ Respond in JSON:
         return {
             "enhanced": True,
             "original_score": score,
-            "original_emotion": dominant_emotion,
+            "dominant_emotion": dominant_emotion,
             "face_detected": face_detected,
-            "mood_interpretation": llm_output.get('mood_interpretation', ''),
-            "patterns_to_monitor": llm_output.get('patterns_to_monitor', ''),
-            "mood_boost_tip": llm_output.get('mood_boost_tip', ''),
+            "llm_feedback": {
+                "interpretation": llm_output.get('interpretation', ''),
+                "concern_level": llm_output.get('concern_level', ''),
+                "supportive_message": llm_output.get('supportive_message', ''),
+                "key_observations": llm_output.get('key_observations', []),
+                "suggestions": llm_output.get('suggestions', []),
+                "needs_attention": llm_output.get('needs_attention', False)
+            },
             "top_emotions": top_emotions
         }
     

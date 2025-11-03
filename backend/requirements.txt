@@ -29,6 +29,15 @@ mtcnn==0.1.1
 groq==0.33.0
 python-dotenv==1.0.0
 
+# Authentication
+passlib[bcrypt]==1.7.4  # Password hashing with bcrypt
+python-jose[cryptography]==3.3.0  # JWT tokens
+pyjwt==2.8.0
+
+# Database
+pymongo==4.6.1  # MongoDB driver
+motor==3.3.2  # Async MongoDB driver for FastAPI
+
 # Utils
 pydantic==2.5.3
 python-json-logger==2.0.7
